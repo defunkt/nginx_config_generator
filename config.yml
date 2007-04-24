@@ -1,0 +1,51 @@
+root: 
+  rails: /home/chris/sites/%s/current/public
+  default: /home/chris/sites/%s
+
+sites: 
+  errtheblog:
+    upstream: 127.0.0.1:8000
+    server_name: errtheblog.com www.errtheblog.com
+    no_www: true
+    rewrites:
+      - ^/feed/feedburner http://feeds.feedburner.com/errtheblog
+      - ^/feed/atom.xml http://feeds.feedburner.com/errtheblog
+    root: rails
+
+  ozmm:
+    upstream: 127.0.0.1:8010
+    server_name: ozmm.org www.ozmm.org
+    no_www: true
+    root: rails
+
+  cheat:
+    upstream: 127.0.0.1:8020
+    server_name: cheat.errtheblog.com
+
+  subtlety:
+    upstream: 127.0.0.1:8021
+    server_name: subtlety.errtheblog.com
+
+  sfruby:
+    upstream: 127.0.0.1:8030
+    server_name: sfruby.org www.sfruby.org
+    no_www: true
+    root: rails
+
+  cioffi:
+    upstream: 127.0.0.1:8040
+    server_name: legendofcioffi.com www.legenofcioffi.com
+    no_www: true
+    root: rails
+
+  trac:
+    upstream: 127.0.0.1:9000
+    server_name: require.errtheblog.com
+
+  famupdate:
+    server_name: famupdate.com www.famupdate.com
+
+  qa:
+    server_name: qa.famupdate.com
+    auth_file: /home/builder/conf/htpasswd
+    root: /home/builder/site

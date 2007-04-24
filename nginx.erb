@@ -1,0 +1,150 @@
+## http://brainspl.at/nginx.conf.txt
+
+#user and group to run as
+user  nginx nginx;
+
+# number of nginx workers
+worker_processes  2;
+
+# pid of nginx master process
+pid        logs/nginx.pid;
+
+# Number of worker connections. 1024 is a good default
+events {
+	worker_connections  1024;
+}
+
+# start the http module where we config http access.
+http {
+	# pull in mime-types. You can break out your config 
+	# into as many include's as you want to make it cleaner
+	include       conf/mime.types;
+
+	# set a default type for the rare situation that
+	# nothing matches from the mimie-type include
+	default_type  application/octet-stream;
+
+	# configure log format
+	log_format  main  '$remote_addr - $remote_user [$time_local] $status '
+                		'"$request" $body_bytes_sent "$http_referer" '
+                		'"$http_user_agent" "http_x_forwarded_for"';
+
+	# main access log
+	access_log  logs/access.log  main;
+
+	# main error log
+	error_log  logs/error.log debug;
+  #error_log logs/error.log debug_http;
+
+	# no sendfile on OSX 
+	sendfile        on;
+
+	# These are good default values.
+  tcp_nopush        on;
+  tcp_nodelay       off;
+  # output compression saves bandwidth 
+  gzip            on;
+  gzip_http_version 1.0;
+  gzip_comp_level 2;
+  gzip_proxied any;
+  gzip_types      text/plain text/html text/css application/x-javascript text/xml application/xml 
+                   application/xml+rss text/javascript;
+
+	# this is where you define your mongrel clusters. 
+	# you need one of these blocks for each cluster
+	# and each one needs its own name to refer to it later.
+<% config['sites'].each do |name, site| %>
+<% next unless site['upstream'] %>
+  upstream <%= name %> {
+<% Array(site['upstream'] || site['upstreams']).each do |server| %>
+    server <%= server %>;
+<% end %>
+  }
+<% end %>
+
+<% config['sites'].each do |name, site| %>
+  # the server directive is nginx's virtual host directive.
+  server {
+    # port to listen on. Can also be set to an IP:PORT
+    listen       80;
+
+    # sets the domain[s] that this vhost server requests for
+    server_name  <%= site['server_name'] %>;
+
+    # doc root
+    root <%= (config['root'][ site['root'] || 'default' ] || site['root']) % name %>;
+
+    # vhost specific access log
+    access_log  logs/<%= name %>.access.log  main;
+
+    #Set the max size for file uploads to 50Mb
+    client_max_body_size  50M;
+
+    # this rewrites all the requests to the maintenance.html
+    # page if it exists in the doc root. This is for capistrano's
+    # disable web task
+    if (-f $document_root/maintenance.html){
+      rewrite  ^(.*)$  /maintenance.html last;
+      break;
+    }
+
+<% if site['no_www'] %>
+    if ($host ~* "www") {
+      rewrite ^(.*)$ http://<%= site['server_name'].split.first %>$1 redirect;
+      break;
+    }
+<% end %>
+
+    location / {
+<% Array(site['rewrite'] || site['rewrites']).each do |rewrite| %>
+      rewrite <%= rewrite %> break;
+<% end %>
+
+<% if site['auth_file'] %>
+      auth_basic            "<%= name %> requires credentials.";
+      auth_basic_user_file  <%= site['auth_file'] %>;
+<% end %>
+
+      # needed to forward user's IP address to rails
+      proxy_set_header  X-Real-IP  $remote_addr;
+
+      # needed for HTTPS
+      proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect false;
+      proxy_max_temp_file_size 0;
+
+      # check for index.html for directory index
+      # if its there on the filesystem then rewite 
+      # the url to add /index.html to the end of it
+      # and then break to send it to the next config rules.
+      if (-f $request_filename/index.html) {
+        rewrite (.*) $1/index.html break;
+      }
+
+      # this is the meat of the rails page caching config
+      # it adds .html to the end of the url and then checks
+      # the filesystem for that file. If it exists, then we
+      # rewite the url to have explicit .html on the end 
+      # and then send it on its way to the next config rule.
+      # if there is no file on the fs then it sets all the 
+      # necessary headers and proxies to our upstream mongrels
+      if (-f $request_filename.html) {
+        rewrite (.*) $1.html break;
+      }
+
+<% if site['upstream'] %>
+      if (!-f $request_filename) {
+        proxy_pass http://<%= name %>;
+        break;
+      }
+<% end %>
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+      root   html;
+    }
+  }
+  <% end %>
+}

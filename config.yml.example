@@ -1,0 +1,38 @@
+root: 
+  rails: /home/chris/sites/%s/current/public
+  default: /home/chris/sites/%s
+
+sites: 
+  errtheblog:
+    upstream: 
+      - 127.0.0.1:8000
+      - 127.0.0.1:8001
+    server_name: errtheblog.com www.errtheblog.com
+    no_www: true # www.errtheblog.com => errtheblog.com
+    rewrites:
+      - ^/feed/feedburner http://feeds.feedburner.com/errtheblog
+      - ^/feed/atom.xml http://feeds.feedburner.com/errtheblog
+    root: rails
+
+  cheat:
+    upstream: 127.0.0.1:8020
+    server_name: cheat.errtheblog.com
+
+  subtlety:
+    upstream: 127.0.0.1:8021
+    server_name: subtlety.errtheblog.com
+
+  sfruby:
+    upstream: 127.0.0.1:8030
+    server_name: sfruby.org www.sfruby.org
+    no_www: true
+    root: rails
+
+  trac:
+    upstream: 127.0.0.1:9000
+    server_name: require.errtheblog.com
+
+  qa:
+    server_name: qa.secretsite.com
+    auth_file: /home/builder/conf/htpasswd
+    root: /home/builder/site

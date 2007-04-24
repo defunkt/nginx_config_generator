@@ -1,0 +1,11 @@
+A work in progress.  Check it: http://errtheblog.com/post/#
+
+Use it: 
+  $ generate_nginx_config nginx_config.yml /etc/nginx.conf
+
+You can set two environment variables:  
+  - NGINX_CONFIG_YAML to specify the YAML config file 
+  - NGINX_CONFIG_FILE to specify the nginx config file
+
+>> Chris Wanstrath
+=> chris[at]ozmm[dot]org
