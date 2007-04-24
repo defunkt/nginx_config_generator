@@ -33,6 +33,6 @@ sites:
     server_name: require.errtheblog.com
 
   qa:
-    server_name: qa.secretsite.com
+    server_name: qa.famupdate.com
     auth_file: /home/builder/conf/htpasswd
     root: /home/builder/site
