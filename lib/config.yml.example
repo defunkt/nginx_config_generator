@@ -1,17 +1,27 @@
+# This defines the default roots and alternate roots.
+# The name (or key) of your site will be sprintf'd with
+# the below root, right.
 root: 
   rails: /home/chris/sites/%s/current/public
   default: /home/chris/sites/%s
 
+# All your vhosts.
 sites: 
+  # We're naming this vhost 'errtheblog'
   errtheblog:
+    # Two upstream servers to proxy balance.
     upstream: 
       - 127.0.0.1:8000
       - 127.0.0.1:8001
+    # Just a string of server names.
     server_name: errtheblog.com www.errtheblog.com
-    no_www: true # www.errtheblog.com => errtheblog.com
+    # www.errtheblog.com => errtheblog.com
+    no_www: true 
+    # Just strings that get spit out as rewrites
     rewrites:
       - ^/feed/feedburner http://feeds.feedburner.com/errtheblog
       - ^/feed/atom.xml http://feeds.feedburner.com/errtheblog
+    # Which root to use.  You can add a custom one here, too.
     root: rails
 
   cheat:

@@ -10,5 +10,8 @@ You can set two environment variables:
   - NGINX_CONFIG_YAML to specify the YAML config file 
   - NGINX_CONFIG_FILE to specify the nginx config file
 
+By default, generate_nginx_config won't overwrite your OUT file.  To rock this behavior,
+pass in --overwrite or -o or -y or --force or -f.  Whichever.
+
 >> Chris Wanstrath
 => chris[at]ozmm[dot]org
