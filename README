@@ -1,4 +1,7 @@
-A work in progress.  Check it: http://errtheblog.com/post/#
+A work in progress.  
+
+Check it: 
+  http://errtheblog.com/post/3908
 
 Use it: 
   $ generate_nginx_config nginx_config.yml /etc/nginx.conf
