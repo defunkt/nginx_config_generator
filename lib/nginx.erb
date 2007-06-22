@@ -90,7 +90,14 @@ http {
 
 <% if site['no_www'] %>
     if ($host ~* "www") {
-      rewrite ^(.*)$ http://<%= site['server_name'].split.first %>$1 redirect;
+      rewrite ^(.*)$ http://<%= site['server_name'].split.first %>$1 permanent;
+      break;
+    }
+<% end %>
+
+<% if site['always_www'] %>
+    if ($host != "www.<%= site['server_name'].split.first %>") {
+      rewrite ^(.*)$ http://www.<%= site['server_name'].split.first %>$1 permanent;
       break;
     }
 <% end %>
