@@ -28,4 +28,21 @@ sites:
     upstream: 127.0.0.1:8020
     server_name: cheat.errtheblog.com
 
+  subtlety:
+    upstream: 127.0.0.1:8021
+    server_name: subtlety.errtheblog.com
 
+  sfruby:
+    upstream: 127.0.0.1:8030
+    server_name: sfruby.org www.sfruby.org
+    no_www: true
+    root: rails
+
+  trac:
+    upstream: 127.0.0.1:9000
+    server_name: require.errtheblog.com
+
+  qa:
+    server_name: qa.famupdate.com
+    auth_file: /home/builder/conf/htpasswd
+    root: /home/builder/site
