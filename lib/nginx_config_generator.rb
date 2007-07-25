@@ -16,12 +16,12 @@ error "Usage: generate_nginx_config [config file] [out file]" if ARGV.empty? && 
 
 overwrite = !(%w(-y -o -f --force --overwrite) & ARGV).empty?
 
-config   = YAML.load_file(env_in || ARGV.shift || 'config.yml')
+config   = YAML.load(ERB.new(env_in || ARGV.shift || 'config.yml').result)
 template = file:'nginx.erb'
 
 if File.exists?(out_file = env_out || ARGV.shift || 'nginx.conf') && !overwrite
   error "=> #{out_file} already exists, won't overwrite it.  Quitting."
 else
-  open(out_file, 'w+').write(ERB.new(File.read(template), nil, '>').result(binding))
+  open(out_file, 'w+').write(ERB.new(File.read(template), nil, '>').result)
   error "=> Wrote #{out_file} successfully."
 end
