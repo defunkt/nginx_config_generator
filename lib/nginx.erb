@@ -34,7 +34,7 @@ http {
 
 	# main error log
 	error_log  logs/error.log debug;
-  #error_log logs/error.log debug_http;
+	#error_log logs/error.log debug_http;
 
 	# no sendfile on OSX 
 	sendfile        on;
@@ -62,15 +62,37 @@ http {
   }
 <% end %>
 
-<% config['sites'].each do |name, site| %>
+<% %w(sites ssl_sites).each do |site_type| %>
+	
+<% config[site_type].each do |name, site| %>
   # the server directive is nginx's virtual host directive.
   server {
+    
+<% if site['ssl'] %>
+
+<% if site['listen'] %>
+    listen		<%= site['listen'] %>;
+<% else %>    
+    listen		443;
+<% end %>
+    ssl on;
+    
+	# path to your certificate
+	ssl_certificate <%= site['ssl']['cert'] %>;
+  	
+	# path to your ssl key
+	ssl_certificate_key <%= site['ssl']['key'] %>;
+  	
+<% else %>
+	
     # port to listen on. Can also be set to an IP:PORT
     listen       80;
 
     # sets the domain[s] that this vhost server requests for
     server_name  <%= site['server_name'] %>;
-
+    
+<% end %>
+    
     # doc root
     root <%= (config['root'][ site['root'] || 'default' ] || site['root']) % name %>;
 
@@ -120,6 +142,10 @@ http {
       proxy_set_header Host $http_host;
       proxy_redirect false;
       proxy_max_temp_file_size 0;
+<% if site['ssl'] %>
+      # set X-FORWARDED_PROTO so ssl_requirement plugin works
+      proxy_set_header X-FORWARDED_PROTO https;
+<% end %>
 
       # check for index.html for directory index
       # if its there on the filesystem then rewite 

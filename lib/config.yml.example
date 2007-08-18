@@ -46,3 +46,24 @@ sites:
     server_name: qa.famupdate.com
     auth_file: /home/builder/conf/htpasswd
     root: /home/builder/site
+
+ssl_sites:
+  errtheblog:
+    # ssl configuration
+    ssl:
+      key: /path/to/err.key
+      cert: /path/to/err.crt	
+    # SSL only allows one vhost per IP this can be solved if you have multiple IPs.
+    listen: 10.10.10.1:443
+    # Two upstream servers to proxy balance.
+    upstream:
+      - 127.0.0.1:8000
+      - 127.0.0.1:8001
+    no_www: true
+    # Just strings that get spit out as rewrites
+    rewrites:
+      - ^/feed/feedburner http://feeds.feedburner.com/errtheblog
+      - ^/feed/atom.xml http://feeds.feedburner.com/errtheblog
+    # Which root to use.  You can add a custom one here, too.
+    root: rails
+
