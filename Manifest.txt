@@ -1,8 +1,0 @@
-LICENSE
-Manifest.txt
-README
-Rakefile
-bin/generate_nginx_config
-lib/config.yml.example
-lib/nginx.erb
-lib/nginx_config_generator.rb
