@@ -53,18 +53,18 @@ http {
 	# this is where you define your mongrel clusters. 
 	# you need one of these blocks for each cluster
 	# and each one needs its own name to refer to it later.
-<% config['sites'].each do |name, site| %>
-<% next unless site['upstream'] %>
+<% Array(config['sites']).each do |name, site| %>
+  <% next unless site['upstream'] %>
   upstream <%= name %> {
-<% Array(site['upstream'] || site['upstreams']).each do |server| %>
+  <% Array(site['upstream'] || site['upstreams']).each do |server| %>
     server <%= server %>;
-<% end %>
+  <% end %>
   }
 <% end %>
 
 <% %w(sites ssl_sites).each do |site_type| %>
 	
-<% config[site_type].each do |name, site| %>
+<% Array(config[site_type]).each do |name, site| %>
   # the server directive is nginx's virtual host directive.
   server {
     

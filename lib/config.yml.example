@@ -60,6 +60,7 @@ ssl_sites:
       - 127.0.0.1:8000
       - 127.0.0.1:8001
     no_www: true
+    server_name: errtheblog.com
     # Just strings that get spit out as rewrites
     rewrites:
       - ^/feed/feedburner http://feeds.feedburner.com/errtheblog
