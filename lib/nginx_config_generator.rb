@@ -16,7 +16,7 @@ error "Usage: generate_nginx_config [config file] [out file]" if ARGV.empty? && 
 
 overwrite = %w(-y -o -f --force --overwrite).any? { |f| ARGV.delete(f) }
 
-config   = YAML.load_file(ERB.new(env_in || ARGV.shift || 'config.yml').result)
+config   = YAML.load(ERB.new(File.read(env_in || ARGV.shift || 'config.yml')).result)
 template = file:'nginx.erb'
 
 if File.exists?(out_file = env_out || ARGV.shift || 'nginx.conf') && !overwrite
