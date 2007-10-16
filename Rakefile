@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'echoe'
 
-Echoe.new('nginx_config_generator', '1.3') do |p|
+Echoe.new('nginx_config_generator', '1.4') do |p|
   p.rubyforge_name = 'err'
   p.author = 'Chris Wanstrath'
   p.email = 'chris@ozmm.org'

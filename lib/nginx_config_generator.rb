@@ -17,7 +17,15 @@ error "Usage: generate_nginx_config [config file] [out file]" if ARGV.empty? && 
 overwrite = %w(-y -o -f --force --overwrite).any? { |f| ARGV.delete(f) }
 
 config   = YAML.load(ERB.new(File.read(env_in || ARGV.shift || 'config.yml')).result)
-template = file:'nginx.erb'
+template = if custom_template_index = (ARGV.index('--template') || ARGV.index('-t'))
+  custom = ARGV[custom_template_index+1]
+  error "=> Specified template file #{custom} does not exist." unless File.exist?(custom)
+  ARGV.delete_at(custom_template_index) # delete the --argument
+  ARGV.delete_at(custom_template_index) # and its value
+  custom
+else
+  file:'nginx.erb'
+end
 
 if File.exists?(out_file = env_out || ARGV.shift || 'nginx.conf') && !overwrite
   error "=> #{out_file} already exists, won't overwrite it.  Quitting."
