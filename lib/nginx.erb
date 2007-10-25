@@ -112,7 +112,7 @@ http {
 
 <% if site['no_www'] %>
     if ($host ~* "www") {
-      rewrite ^(.*)$ http://<%= site['server_name'].split.first %>$1 permanent;
+      rewrite ^(.*)$ http://<%= site['server_name'].split.first.sub(/^\./, '') %>$1 permanent;
       break;
     }
 <% end %>
