@@ -168,7 +168,7 @@ http {
 
 <% if site['upstream'] %>
       if (!-f $request_filename) {
-        proxy_pass http://<%= name %>;
+        proxy_pass http://<%= site['proxy_pass'] || name %>;
         break;
       }
 <% end %>
