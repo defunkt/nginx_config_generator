@@ -168,7 +168,7 @@ http {
 
 <% if site['upstream'] %>
       if (!-f $request_filename) {
-        proxy_pass http://<%= site['proxy_pass'] || name %>;
+        proxy_pass http://<%= name %>;
         break;
       }
 <% end %>
@@ -178,6 +178,13 @@ http {
     location = /50x.html {
       root   html;
     }
+    
+<% Array(site['location'] || site['locations']).each do |path, setting| %>
+    location = <%= path %> {
+      <%= setting %>
+    }
+<% end %>
+
   }
 <% end %>
 <% end %>
