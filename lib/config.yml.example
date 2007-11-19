@@ -9,10 +9,11 @@ root:
 sites: 
   # We're naming this vhost 'errtheblog'
   errtheblog:
-    # Two upstream servers to proxy balance.
+    # Two upstream servers to proxy balance fairly.
     upstream: 
       - 127.0.0.1:8000
       - 127.0.0.1:8001
+    fair: true
     # Just a string of server names.
     server_name: errtheblog.com www.errtheblog.com
     # www.errtheblog.com => errtheblog.com
