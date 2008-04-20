@@ -5,6 +5,14 @@ root:
   rails: /home/chris/sites/%s/current/public
   default: /home/chris/sites/%s
 
+# Some more additional config variables
+user: deploy
+group: deploy
+
+pid_path: /var/run/
+config_path: /etc/nginx/
+log_path: /var/log/nginx_
+
 # All your vhosts.
 sites: 
   # We're naming this vhost 'errtheblog'
@@ -19,7 +27,8 @@ sites:
     # www.errtheblog.com => errtheblog.com
     no_www: true 
     # Just strings that get spit out as rewrites
-    rewrites:
+    # which won't rewrite for feedburner itself
+    feeds:
       - ^/feed/feedburner http://feeds.feedburner.com/errtheblog
       - ^/feed/atom.xml http://feeds.feedburner.com/errtheblog
     # Which root to use.  You can add a custom one here, too.

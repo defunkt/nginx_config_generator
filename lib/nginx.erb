@@ -1,13 +1,15 @@
 ## http://brainspl.at/nginx.conf.txt
 
 #user and group to run as
-user  nginx nginx;
+user  <%= config['user'] || "nginx" %> <%= config['group'] || "nginx" %>;
 
 # number of nginx workers
 worker_processes  2;
 
 # pid of nginx master process
-pid        logs/nginx.pid;
+pid   <%= config['pid_path'] || 'logs/' %>nginx.pid;
+
+server_names_hash_bucket_size 128;
 
 # Number of worker connections. 1024 is a good default
 events {
@@ -18,7 +20,7 @@ events {
 http {
 	# pull in mime-types. You can break out your config 
 	# into as many include's as you want to make it cleaner
-	include       conf/mime.types;
+	include       <%= config['config_path'] || 'conf/' %>mime.types;
 
 	# set a default type for the rare situation that
 	# nothing matches from the mimie-type include
@@ -30,10 +32,10 @@ http {
                 		'"$http_user_agent" "http_x_forwarded_for"';
 
 	# main access log
-	access_log  logs/access.log  main;
+	access_log  <%= config['log_path'] || 'logs/' %>access.log  main;
 
 	# main error log
-	error_log  logs/error.log debug;
+    access_log  <%= config['log_path'] || 'logs/' %>access.log  main;
 	#error_log logs/error.log debug_http;
 
 	# no sendfile on OSX 
@@ -130,6 +132,12 @@ http {
     location / {
 <% Array(site['rewrite'] || site['rewrites']).each do |rewrite| %>
       rewrite <%= rewrite %> break;
+<% end %>
+
+<% Array(site['feed'] || site['feeds']).each do |feed_rewrite| %>
+    if ($http_user_agent !~ FeedBurner) {
+      rewrite <%= feed_rewrite %> break;
+    }
 <% end %>
 
 <% if site['auth_file'] %>
