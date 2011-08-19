@@ -1,35 +1,62 @@
 #! /usr/bin/env ruby
-%w(erb yaml).each &method(:require)
+require 'erb'
+require 'yaml'
+require 'optparse'
 
-def error(message) puts(message) || exit end
-def file(file) "#{File.dirname(__FILE__)}/#{file}" end
 
-if ARGV.include? '--example'
-  example = file:'config.yml.example'
-  error open(example).read 
+options = {}
+
+opts_parser = OptionParser.new do |opts|
+    opts.banner="Usage: generate_nginx_config [options]"
+
+    opts.on('-c','--config config_file','Usage config_file file') do |config_file|
+        options[:config_file] = config_file
+    end
+
+    opts.on('-t','--template template_file','Usage template_file file') do |template_file|
+        options[:template_file] = template_file
+    end
+
+    opts.on('-o','--output output_file','Write configuration to output_file') do |output_file|
+        options[:output_file] = output_file
+    end
+
+    options[:overwrite] = nil
+    opts.on('--overwrite','Overwrite output file configuration') do |overwrite|
+        options[:overwrite] = true
+    end
+
+    opts.on('-h', '--help','Display this screen') do
+        puts opts
+        exit
+    end
 end
 
-env_in  = ENV['NGINX_CONFIG_YAML']
-env_out = ENV['NGINX_CONFIG_FILE']
+begin 
+    opts_parser.parse!
+    mandatory = [:config_file,:template_file]
+    missing = mandatory.select{ |param| options[param].nil? }
+    if not missing.empty?
+        puts "Missing options: #{missing.join(', ')}"
+        puts opts_parser
+        exit
+    end
 
-error "Usage: generate_nginx_config [config file] [out file]" if ARGV.empty? && !env_in
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+    puts $!.to_s
+    puts opts_parser
+    exit
+end
 
-overwrite = %w(-y -o -f --force --overwrite).any? { |f| ARGV.delete(f) }
+puts "Performing task with options: #{options.inspect}" 
 
-config   = YAML.load(ERB.new(File.read(env_in || ARGV.shift || 'config.yml')).result)
-template = if custom_template_index = (ARGV.index('--template') || ARGV.index('-t'))
-  custom = ARGV[custom_template_index+1]
-  error "=> Specified template file #{custom} does not exist." unless File.exist?(custom)
-  ARGV.delete_at(custom_template_index) # delete the --argument
-  ARGV.delete_at(custom_template_index) # and its value
-  custom
+config = YAML.load(File.read(options[:config_file]))
+
+if File.exists?(options[:output_file] || 'nginx.conf') && !options[:overwrite]
+    puts "=> #{options[:output_file] || 'nginx.conf'} already exists, won't overwrite it.  Quitting."
+    exit
 else
-  file:'nginx.erb'
+    open('nginx.conf', 'w+').write(ERB.new(File.new(options[:template_file]).read,nil,'>').result(binding))
+    puts "=> Wrote #{options[:output_file] || 'nginx.conf'} successfully."
 end
 
-if File.exists?(out_file = env_out || ARGV.shift || 'nginx.conf') && !overwrite
-  error "=> #{out_file} already exists, won't overwrite it.  Quitting."
-else
-  open(out_file, 'w+').write(ERB.new(File.read(template), nil, '>').result(binding))
-  error "=> Wrote #{out_file} successfully."
-end
